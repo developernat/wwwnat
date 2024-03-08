@@ -1,209 +1,208 @@
-import { Button, Checkbox, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Label, Modal, TextInput } from "flowbite-react";
-import { React, useState } from "react";
+import DataTable, { createTheme } from "react-data-table-component"
+import 'styled-components';
+import React, { useState, useEffect } from "react";
+import { Button, ButtonGroup, Modal } from "flowbite-react";
 
 
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
 
+    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+}
 
 
 export const TableApp = () => {
+
+    const [users, setUsers] = useState([]);
     const [openModal, setOpenModal] = useState(false);
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [Id, setId] = useState(0);
 
-    function onCloseModal() {
-        setOpenModal(false);
-        setEmail('');
+    const URL = 'http://pansuki.ddns.net:8080/users';
+
+
+    useEffect(() => {
+
+        fetchData();
+
+    }, [])
+
+
+    const fetchData = async (method = 'GET', id = null, data = {}) => {
+
+        let requestUrl = URL;
+
+        if (id != null) {
+
+            requestUrl = (requestUrl + "/" + id);
+        }
+        let dataSettings = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+        console.log(requestUrl);
+        if (method === "POST" || method === "PUT") {
+
+            dataSettings.body = JSON.stringify(data);
+        }
+
+
+
+        const response = await fetch(
+            requestUrl, dataSettings
+        );
+
+        const dataApi = await response.json();
+
+        if (method === "GET") {
+            setUsers(dataApi);
+        } else {
+            fetchData();
+            closeModal();
+        }
+
     }
 
-    function clickData(data) {
-        console.log(data);
+
+
+    function editUser(id = 0, data) {
+        setEmail(data.email);
+        setName(data.name);
+        setId(data._id);
+
         setOpenModal(true);
-        setEmail(data.name);
     }
 
-    const [datas, setDatas] = useState([
+    function usersModal(ev) {
+
+        const dataSubmit = {
+            name: ev.name.value,
+            email: ev.email.value
+        }
+        if (ev.idusers.value != 0) {
+            fetchData("PUT", ev.idusers.value, dataSubmit);
+        } else {
+            if(dataSubmit.name == "" || dataSubmit.email == ""){
+                alert("Todos los campos son obligatorios");
+            }else{
+                fetchData("POST", null, dataSubmit);
+            }
+          
+
+        }
+    }
+
+
+    function deleteUser(id = 0) {
+
+        if (window.confirm("Estas seguro de eliminar el usuario?")) {
+            fetchData("DELETE", id);
+        }
+    }
+    function closeModal() {
+        setOpenModal(false);
+        setName('');
+        setEmail('');
+        setId(0);
+    }
+
+
+
+    const columns = [
         {
-            "id": 1,
-            "name": "Apple MacBook Pro 13\"",
-            "color": "Space Gray",
-            "category": "Laptop",
-            "price": "$1299"
+            name: 'ID',
+            selector: row => row._id,
+            sortable: true,
+
         },
         {
-            "id": 2,
-            "name": "Apple MacBook Pro 15\"",
-            "color": "Silver",
-            "category": "Laptop",
-            "price": "$1999"
+            name: 'Name',
+            selector: row => row.name,
+            sortable: true,
         },
         {
-            "id": 3,
-            "name": "Apple MacBook Air 13\"",
-            "color": "Gold",
-            "category": "Laptop",
-            "price": "$999"
+            name: 'Email',
+            selector: row => row.email,
+            sortable: true,
+        }, {
+            name: 'Created At',
+            selector: row => formatDate(row.createdAt),
+            sortable: true,
         },
         {
-            "id": 4,
-            "name": "Dell XPS 15\"",
-            "color": "Black",
-            "category": "Laptop",
-            "price": "$1799"
+            name: 'Updated At',
+            selector: row => formatDate(row.updatedAt),
+            sortable: true,
+
         },
         {
-            "id": 5,
-            "name": "HP Spectre x360 13\"",
-            "color": "Dark Ash Silver",
-            "category": "Laptop",
-            "price": "$1199"
-        },
-        {
-            "id": 6,
-            "name": "Microsoft Surface Laptop 3 15\"",
-            "color": "Platinum",
-            "category": "Laptop",
-            "price": "$1499"
-        },
-        {
-            "id": 7,
-            "name": "Lenovo ThinkPad X1 Carbon 7th Gen",
-            "color": "Black",
-            "category": "Laptop",
-            "price": "$1499"
-        },
-        {
-            "id": 8,
-            "name": "Asus ZenBook 14\"",
-            "color": "Royal Blue",
-            "category": "Laptop",
-            "price": "$899"
-        },
-        {
-            "id": 9,
-            "name": "Acer Swift 5",
-            "color": "Charcoal Blue",
-            "category": "Laptop",
-            "price": "$999"
-        },
-        {
-            "id": 10,
-            "name": "Razer Blade Stealth 13\"",
-            "color": "Mercury White",
-            "category": "Laptop",
-            "price": "$1399"
-        },
-        {
-            "id": 11,
-            "name": "LG Gram 17\"",
-            "color": "Dark Silver",
-            "category": "Laptop",
-            "price": "$1499"
-        },
-        {
-            "id": 12,
-            "name": "Samsung Galaxy Book Flex 15\"",
-            "color": "Royal Blue",
-            "category": "Laptop",
-            "price": "$1299"
+
+            name: 'Action',
+
+            cell: row => <ButtonGroup>
+                <Button color="success" onClick={() => editUser(row._id, row)}>Editar</Button>
+                <Button color="failure" onClick={() => deleteUser(row._id)}>Eliminar</Button>
+            </ButtonGroup>,
         }
     ]
 
-    );
 
     return (
         <>
-            <Table hoverable striped className="">
-                <TableHead>
-                    <TableHeadCell className="p-4">
-                        <Checkbox />
-                    </TableHeadCell>
-                    <TableHeadCell>Product name</TableHeadCell>
-                    <TableHeadCell>Color</TableHeadCell>
-                    <TableHeadCell>Category</TableHeadCell>
-                    <TableHeadCell>Price</TableHeadCell>
-                    <TableHeadCell>
-                        <span className="sr-only">Edit</span>
-                    </TableHeadCell>
-                </TableHead>
-
-                <TableBody className="divide-y">
+            <Button onClick={() => setOpenModal(true)}>Añadir usuario</Button>
+            <DataTable
+                columns={columns}
+                data={users}
+                pagination
+                highlightOnHover
+                filtering
+            ></DataTable>
 
 
-                    {datas.map((data) => (
-                        <TableRow key={data.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                            <TableCell className="p-4">
-                                <Checkbox />
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                {data.name}
-                            </TableCell>
-                            <TableCell>{data.color}</TableCell>
-                            <TableCell>{data.category}</TableCell>
-                            <TableCell>{data.price}</TableCell>
-                            <TableCell>
-                                <Button onClick={() => clickData(data)} >
-                                    Edit
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                    ))}
+            <Modal show={openModal} onClose={() => closeModal()}>
 
+                <form id="form-user" onSubmit={ev => {
+                    ev.preventDefault();
+                    usersModal(ev.target)
+                }}>
 
+                    <Modal.Header>Añadir usuario</Modal.Header>
+                    <Modal.Body>
 
+                        <div className="mb-2 block">
+                            <label htmlFor="name"> Name </label>
+                            <input type="text" id="name" onChange={ev => setName(ev.target.value)} value={name} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
 
-
-                </TableBody>
-            </Table>
-
-
-{/* Modal */}
-
-       
-            <Modal show={openModal} size="md" onClose={onCloseModal} popup>
-                <Modal.Header />
-                <Modal.Body>
-                    <div className="space-y-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sign in to our platform</h3>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="email" value="Your email" />
-                            </div>
-                            <TextInput
-                                id="email"
-                                placeholder="name@company.com"
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                                required
-                            />
                         </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="password" value="Your password" />
-                            </div>
-                            <TextInput id="password" type="password" required />
+
+                        <div className="mb-2 block">
+                            <label htmlFor="name"> E-mail </label>
+                            <input type="text" id="email" onChange={ev => setEmail(ev.target.value)} value={email} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+
                         </div>
-                        <div className="flex justify-between">
-                            <div className="flex items-center gap-2">
-                                <Checkbox id="remember" />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
-                            <a href="#" className="text-sm text-cyan-700 hover:underline dark:text-cyan-500">
-                                Lost Password?
-                            </a>
-                        </div>
-                        <div className="w-full">
-                            <Button>Log in to your account</Button>
-                        </div>
-                        <div className="flex justify-between text-sm font-medium text-gray-500 dark:text-gray-300">
-                            Not registered?&nbsp;
-                            <a href="#" className="text-cyan-700 hover:underline dark:text-cyan-500">
-                                Create account
-                            </a>
-                        </div>
-                    </div>
-                </Modal.Body>
+
+
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <input type="hidden" onChange={ev => setId(ev.target.value)} value={Id} id="idusers" />
+                        <Button type="submit" color="success">Agregar</Button>
+
+                    </Modal.Footer>
+                </form>
             </Modal>
 
+        </>
 
 
-        </>)
+    )
 }
