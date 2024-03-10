@@ -1,20 +1,8 @@
-import DataTable, { createTheme } from "react-data-table-component"
+import DataTable from "react-data-table-component"
 import 'styled-components';
 import React, { useState, useEffect } from "react";
 import { Button, ButtonGroup, Modal } from "flowbite-react";
-
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear().toString();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-
-    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
-}
+import { formatDate } from "../../../utilities/utilities";
 
 
 export const TableApp = () => {
@@ -23,15 +11,13 @@ export const TableApp = () => {
     const [openModal, setOpenModal] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [ModalAction, setModalAction] = useState('Añadir usuario');
     const [Id, setId] = useState(0);
     const URL = process.env.REACT_APP_API_DOMAIN + "/users";
-
-  
 
     useEffect(() => {
         fetchData();
     }, [])
-
 
     const fetchData = async (method = 'GET', id = null, data = {}) => {
 
@@ -69,14 +55,13 @@ export const TableApp = () => {
 
     }
 
-
-
     function editUser(id = 0, data) {
         setEmail(data.email);
         setName(data.name);
         setId(data._id);
 
         setOpenModal(true);
+        setModalAction('Editar usuario');
     }
 
     function usersModal(ev) {
@@ -98,21 +83,20 @@ export const TableApp = () => {
         }
     }
 
-
     function deleteUser(id = 0) {
 
         if (window.confirm("Estas seguro de eliminar el usuario?")) {
             fetchData("DELETE", id);
         }
     }
+
     function closeModal() {
         setOpenModal(false);
         setName('');
         setEmail('');
         setId(0);
+        setModalAction('Añadir usuario');
     }
-
-
 
     const columns = [
         {
@@ -146,54 +130,39 @@ export const TableApp = () => {
         }
     ]
 
-
     return (
         <>
-                <Button onClick={() => setOpenModal(true)}>Añadir usuario</Button>
-                <DataTable
-                    columns={columns}
-                    data={users}
-                    pagination
-                    highlightOnHover
-                    filtering
-                ></DataTable>
+            <Button onClick={() => setOpenModal(true)}>Añadir usuario</Button>
+            <DataTable
+                columns={columns}
+                data={users}
+                pagination
+                highlightOnHover
+                filtering
+            ></DataTable>
 
-
-                <Modal show={openModal} onClose={() => closeModal()}>
-
-                    <form id="form-user" onSubmit={ev => {
-                        ev.preventDefault();
-                        usersModal(ev.target)
-                    }}>
-
-                        <Modal.Header>Añadir usuario</Modal.Header>
-                        <Modal.Body>
-
-                            <div className="mb-2 block">
-                                <label htmlFor="name"> Name </label>
-                                <input type="text" id="name" onChange={ev => setName(ev.target.value)} value={name} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
-
-                            </div>
-
-                            <div className="mb-2 block">
-                                <label htmlFor="name"> E-mail </label>
-                                <input type="text" id="email" onChange={ev => setEmail(ev.target.value)} value={email} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
-
-                            </div>
-
-
-                        </Modal.Body>
-
-                        <Modal.Footer>
-                            <input type="hidden" onChange={ev => setId(ev.target.value)} value={Id} id="idusers" />
-                            <Button type="submit" color="success">Agregar</Button>
-
-                        </Modal.Footer>
-                    </form>
-                </Modal>
-
-            </>
-
-
-            )
+            <Modal show={openModal} onClose={() => closeModal()}>
+                <form id="form-user" onSubmit={ev => {
+                    ev.preventDefault();
+                    usersModal(ev.target)
+                }}>
+                    <Modal.Header>{ModalAction}</Modal.Header>
+                    <Modal.Body>
+                        <div className="mb-2 block">
+                            <label htmlFor="name"> Name </label>
+                            <input type="text" id="name" onChange={ev => setName(ev.target.value)} value={name} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                        </div>
+                        <div className="mb-2 block">
+                            <label htmlFor="name"> E-mail </label>
+                            <input type="text" id="email" onChange={ev => setEmail(ev.target.value)} value={email} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <input type="hidden" onChange={ev => setId(ev.target.value)} value={Id} id="idusers" />
+                        <Button type="submit" color="success">Guardar</Button>
+                    </Modal.Footer>
+                </form>
+            </Modal>
+        </>
+    )
 }
