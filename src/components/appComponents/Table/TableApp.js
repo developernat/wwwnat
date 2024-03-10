@@ -24,8 +24,9 @@ export const TableApp = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [Id, setId] = useState(0);
-    const URL = process.env.REACT_APP_API_PROTOCOL+"://"+process.env.REACT_APP_API_URL+":"+process.env.REACT_APP_API_PORT;
+    const URL = process.env.REACT_APP_API_DOMAIN + "/users";
 
+  
 
     useEffect(() => {
         fetchData();
@@ -46,7 +47,6 @@ export const TableApp = () => {
                 'Content-Type': 'application/json',
             },
         }
-        
         if (method === "POST" || method === "PUT") {
 
             dataSettings.body = JSON.stringify(data);
