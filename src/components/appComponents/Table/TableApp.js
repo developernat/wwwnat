@@ -24,14 +24,11 @@ export const TableApp = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [Id, setId] = useState(0);
-
-    const URL = 'http://pansuki.ddns.net:8080/users';
+    const URL = process.env.REACT_APP_API_PROTOCOL+"://"+process.env.REACT_APP_API_URL+":"+process.env.REACT_APP_API_PORT;
 
 
     useEffect(() => {
-
         fetchData();
-
     }, [])
 
 
@@ -49,7 +46,7 @@ export const TableApp = () => {
                 'Content-Type': 'application/json',
             },
         }
-        console.log(requestUrl);
+        
         if (method === "POST" || method === "PUT") {
 
             dataSettings.body = JSON.stringify(data);
@@ -91,12 +88,12 @@ export const TableApp = () => {
         if (ev.idusers.value != 0) {
             fetchData("PUT", ev.idusers.value, dataSubmit);
         } else {
-            if(dataSubmit.name == "" || dataSubmit.email == ""){
+            if (dataSubmit.name == "" || dataSubmit.email == "") {
                 alert("Todos los campos son obligatorios");
-            }else{
+            } else {
                 fetchData("POST", null, dataSubmit);
             }
-          
+
 
         }
     }
@@ -152,51 +149,51 @@ export const TableApp = () => {
 
     return (
         <>
-            <Button onClick={() => setOpenModal(true)}>Añadir usuario</Button>
-            <DataTable
-                columns={columns}
-                data={users}
-                pagination
-                highlightOnHover
-                filtering
-            ></DataTable>
+                <Button onClick={() => setOpenModal(true)}>Añadir usuario</Button>
+                <DataTable
+                    columns={columns}
+                    data={users}
+                    pagination
+                    highlightOnHover
+                    filtering
+                ></DataTable>
 
 
-            <Modal show={openModal} onClose={() => closeModal()}>
+                <Modal show={openModal} onClose={() => closeModal()}>
 
-                <form id="form-user" onSubmit={ev => {
-                    ev.preventDefault();
-                    usersModal(ev.target)
-                }}>
+                    <form id="form-user" onSubmit={ev => {
+                        ev.preventDefault();
+                        usersModal(ev.target)
+                    }}>
 
-                    <Modal.Header>Añadir usuario</Modal.Header>
-                    <Modal.Body>
+                        <Modal.Header>Añadir usuario</Modal.Header>
+                        <Modal.Body>
 
-                        <div className="mb-2 block">
-                            <label htmlFor="name"> Name </label>
-                            <input type="text" id="name" onChange={ev => setName(ev.target.value)} value={name} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <div className="mb-2 block">
+                                <label htmlFor="name"> Name </label>
+                                <input type="text" id="name" onChange={ev => setName(ev.target.value)} value={name} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
 
-                        </div>
+                            </div>
 
-                        <div className="mb-2 block">
-                            <label htmlFor="name"> E-mail </label>
-                            <input type="text" id="email" onChange={ev => setEmail(ev.target.value)} value={email} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <div className="mb-2 block">
+                                <label htmlFor="name"> E-mail </label>
+                                <input type="text" id="email" onChange={ev => setEmail(ev.target.value)} value={email} className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
 
-                        </div>
-
-
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <input type="hidden" onChange={ev => setId(ev.target.value)} value={Id} id="idusers" />
-                        <Button type="submit" color="success">Agregar</Button>
-
-                    </Modal.Footer>
-                </form>
-            </Modal>
-
-        </>
+                            </div>
 
 
-    )
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <input type="hidden" onChange={ev => setId(ev.target.value)} value={Id} id="idusers" />
+                            <Button type="submit" color="success">Agregar</Button>
+
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+
+            </>
+
+
+            )
 }
