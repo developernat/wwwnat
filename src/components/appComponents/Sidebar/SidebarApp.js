@@ -12,7 +12,7 @@ export const SidebarApp = () => {
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
                     <Sidebar.Item active href="#" icon={HiTable}>
-                        User
+                        Usuarios
                     </Sidebar.Item>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>
