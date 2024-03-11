@@ -42,7 +42,6 @@ export const TableApp = () => {
     const [UpdatedAtSearchTo, setUpdatedAtSearchTo] = useState("");
 
     const URL = process.env.REACT_APP_API_DOMAIN + "/users";
-    console.log(URL);
 
     const closeModal = useCallback(() => {
         setOpenModal(false);
@@ -88,7 +87,6 @@ export const TableApp = () => {
                 const response = await fetch(requestUrl, dataSettings);
 
                 if (!response.ok) {
-                    console.log(response.body);
                     throw new Error(response.headers);
                 } else {
                     const dataApi = await response.json();
@@ -100,7 +98,6 @@ export const TableApp = () => {
                     }
                 }
             } catch (error) {
-                console.log(error);
                 alert("Debe completar todos los campos");
             }
         },
